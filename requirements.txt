@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+pyyaml
+pytest
+mlflow
+dvc
+evidently
+joblib
