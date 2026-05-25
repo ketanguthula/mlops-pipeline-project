@@ -40,6 +40,7 @@ def train_model(config):
         model = RandomForestClassifier(
             n_estimators=config["model"]["n_estimators"],
             max_depth=config["model"]["max_depth"],
+            class_weight=config["model"]["class_weight"],
             random_state=config["model"]["random_state"],
         )
 
