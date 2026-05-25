@@ -1,5 +1,7 @@
 import yaml
 import pandas as pd
+import mlflow
+import mlflow.sklearn
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -15,54 +17,71 @@ def load_config(config_path="configs/config.yaml"):
 
 
 def train_model(config):
-    df = pd.read_csv(config["data"]["raw_path"])
+    mlflow.set_experiment(config["mlflow"]["experiment_name"])
 
-    X, y = split_features_target(df, config["data"]["target_column"])
+    with mlflow.start_run():
 
-    y = y.map({"Yes": 1, "No": 0})
+        df = pd.read_csv(config["data"]["raw_path"])
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X,
-        y,
-        test_size=config["data"]["test_size"],
-        random_state=config["data"]["random_state"],
-        stratify=y,
-    )
+        X, y = split_features_target(df, config["data"]["target_column"])
 
-    preprocessor = build_preprocessor(X_train)
+        y = y.map({"Yes": 1, "No": 0})
 
-    model = RandomForestClassifier(
-        n_estimators=config["model"]["n_estimators"],
-        max_depth=config["model"]["max_depth"],
-        random_state=config["model"]["random_state"],
-    )
+        X_train, X_test, y_train, y_test = train_test_split(
+            X,
+            y,
+            test_size=config["data"]["test_size"],
+            random_state=config["data"]["random_state"],
+            stratify=y,
+        )
 
-    pipeline = Pipeline(
-        steps=[
-            ("preprocessor", preprocessor),
-            ("model", model),
-        ]
-    )
+        preprocessor = build_preprocessor(X_train)
 
-    pipeline.fit(X_train, y_train)
+        model = RandomForestClassifier(
+            n_estimators=config["model"]["n_estimators"],
+            max_depth=config["model"]["max_depth"],
+            random_state=config["model"]["random_state"],
+        )
 
-    predictions = pipeline.predict(X_test)
+        pipeline = Pipeline(
+            steps=[
+                ("preprocessor", preprocessor),
+                ("model", model),
+            ]
+        )
 
-    metrics = {
-        "accuracy": accuracy_score(y_test, predictions),
-        "precision": precision_score(y_test, predictions),
-        "recall": recall_score(y_test, predictions),
-        "f1": f1_score(y_test, predictions),
-    }
+        pipeline.fit(X_train, y_train)
 
-    print("Evaluation metrics:")
-    for name, value in metrics.items():
-        print(f"{name}: {value:.4f}")
+        predictions = pipeline.predict(X_test)
 
-    return pipeline, metrics
+        metrics = {
+            "accuracy": accuracy_score(y_test, predictions),
+            "precision": precision_score(y_test, predictions),
+            "recall": recall_score(y_test, predictions),
+            "f1": f1_score(y_test, predictions),
+        }
+
+        mlflow.log_params(config["model"])
+
+        mlflow.log_param(
+            "data_path",
+            config["data"]["raw_path"]
+        )
+
+        mlflow.log_metrics(metrics)
+
+        mlflow.sklearn.log_model(
+            pipeline,
+            artifact_path="model"
+        )
+
+        print("Evaluation metrics:")
+        for name, value in metrics.items():
+            print(f"{name}: {value:.4f}")
+
+        return pipeline, metrics
 
 
 if __name__ == "__main__":
     config = load_config()
-    train_model(config) 
-    
+    train_model(config)
