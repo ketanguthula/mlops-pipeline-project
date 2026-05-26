@@ -1,0 +1,19 @@
+data:
+  raw_path: data/sample/employee_attrition_sample.csv
+  target_column: Attrition
+  test_size: 0.2
+  random_state: 42
+
+model:
+  type: random_forest
+  n_estimators: 50
+  max_depth: 5
+  class_weight: balanced
+  random_state: 42
+
+training:
+  primary_metric: accuracy
+  min_accuracy: 0.70
+
+mlflow:
+  experiment_name: employee_attrition_ci_experiment

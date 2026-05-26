@@ -2,6 +2,7 @@ import yaml
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+import sys
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -84,5 +85,6 @@ def train_model(config):
 
 
 if __name__ == "__main__":
-    config = load_config()
+    config_path = sys.argv[1] if len(sys.argv) > 1 else "configs/config.yaml"
+    config = load_config(config_path)
     train_model(config)
