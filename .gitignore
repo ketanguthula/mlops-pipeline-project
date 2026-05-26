@@ -223,3 +223,5 @@ models/
 mlruns/
 reports/
 .dvc/cache/
+
+mlflow.db 

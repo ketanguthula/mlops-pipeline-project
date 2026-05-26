@@ -18,6 +18,7 @@ def load_config(config_path="configs/config.yaml"):
 
 
 def train_model(config):
+    mlflow.set_tracking_uri("file:./mlruns") 
     mlflow.set_experiment(config["mlflow"]["experiment_name"])
 
     with mlflow.start_run():
