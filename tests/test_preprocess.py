@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from src.preprocess import split_features_target
+from src.preprocess import build_preprocessor
 
 
 def test_split_features_target_returns_correct_shapes():
@@ -48,3 +49,20 @@ def test_original_dataframe_not_modified():
     split_features_target(df, "target")
 
     assert df.columns.tolist() == original_columns
+
+
+def test_build_preprocessor_handles_missing_values():
+    df = pd.DataFrame({
+        "age": [25, None, 35],
+        "department": ["Sales", "HR", None]
+    })
+
+    preprocessor = build_preprocessor(df)
+    transformed = preprocessor.fit_transform(df)
+
+    assert transformed.shape[0] == 3
+
+
+def test_build_preprocessor_rejects_non_dataframe_input():
+    with pytest.raises(TypeError):
+        build_preprocessor([1, 2, 3])
