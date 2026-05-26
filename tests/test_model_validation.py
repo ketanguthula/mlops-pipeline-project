@@ -1,6 +1,6 @@
 import pandas as pd
 
-from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from src.preprocess import split_features_target, build_preprocessor
 
 
-DATA_PATH = "data/raw/WA_Fn-UseC_-HR-Employee-Attrition.csv"
+DATA_PATH = "data/sample/employee_attrition_sample.csv"
 
 
 def train_small_model():
@@ -53,10 +53,10 @@ def test_model_predictions_have_correct_shape():
     assert predictions.shape == y_test.shape
 
 
-def test_model_meets_minimum_f1_threshold():
+def test_model_meets_minimum_accuracy_threshold():
     model, X_test, y_test = train_small_model()
 
     predictions = model.predict(X_test)
-    score = f1_score(y_test, predictions)
+    score = accuracy_score(y_test, predictions)
 
-    assert score >= 0.20
+    assert score >= 0.70

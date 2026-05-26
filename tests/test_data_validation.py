@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-DATA_PATH = "data/raw/WA_Fn-UseC_-HR-Employee-Attrition.csv"
+DATA_PATH = "data/sample/employee_attrition_sample.csv"
 
 
 def test_expected_columns_present():
